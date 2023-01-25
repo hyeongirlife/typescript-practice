@@ -26,6 +26,7 @@
   }
   login();
   type LoginState = SuccessState | FailureState;
+
   function printLoginState(state: LoginState): void {
     // if (state.response.body) {
     if ("response" in state) {
