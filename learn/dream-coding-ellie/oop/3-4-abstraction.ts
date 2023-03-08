@@ -3,8 +3,10 @@
     shots: number;
     hasMilk: boolean;
   };
-
+  // !! 의사소통을 위한 contractor
+  // !! I prefix를 붙히거나 뒤에 Impl(Implement)를 붙힘
   interface CoffeeMaker {
+    fillCoffeeBeans(beans: number): void;
     makeCoffee(shots: number): CoffeeCup;
   }
 
@@ -14,80 +16,85 @@
     clean(): void;
   }
 
-  class CoffeeMachine implements CoffeeMaker, CommercialCoffeeMaker {
-    private static BEANS_GRAM_PER_SHOT: number = 7;
-    private coffeeBeans: number = 0;
+  // !! interface를 준수하는 class
+  class CoffeeMachine implements CommercialCoffeeMaker, CoffeeMaker {
+    private static bean_per_one_shots: number = 7;
+    private bean: number = 0;
 
-    constructor(coffeeBeans: number) {
-      this.coffeeBeans = coffeeBeans;
+    private constructor(bean: number) {
+      this.bean = bean;
     }
-    static makeMachine(coffeeBeans: number): CoffeeMaker {
-      return new CoffeeMachine(coffeeBeans);
+
+    static makeMachine(bean: number): CoffeeMachine {
+      return new CoffeeMachine(bean);
     }
+
     fillCoffeeBeans(beans: number) {
       if (beans < 0) {
-        throw new Error("value for beans should be greater than 0");
+        throw new Error("커피 콩 개수는 0 보다 커야합니다.");
       }
-      this.coffeeBeans += beans;
-      console.log(this.coffeeBeans);
+      this.bean += beans;
+      console.log(
+        `커피콩이 ${beans}개 채워졌고 현재 총 ${this.bean}개 입니다.`
+      );
     }
-    clean() {
-      console.log(`Cleaning the machine...`);
-    }
-
     private grindBeans(shots: number) {
-      console.log(`grinding beans for ${shots}`);
-
-      if (this.coffeeBeans < CoffeeMachine.BEANS_GRAM_PER_SHOT) {
-        throw new Error("Not enough coffee beans!");
+      if (this.bean < shots * CoffeeMachine.bean_per_one_shots) {
+        throw new Error("커피 콩이 부족합니다.");
       }
+      this.bean -= shots * CoffeeMachine.bean_per_one_shots;
+      console.log("커피 콩을 가는 중입니다.");
+      console.log(`남아 있는 콩의 개수는 ${this.bean} 입니다.`);
+    }
 
-      this.coffeeBeans -= shots * CoffeeMachine.BEANS_GRAM_PER_SHOT;
-    }
     private preheat(): void {
-      console.log("heating up!");
+      console.log("커피를 따뜻하게 데우는 중 입니다.");
     }
+
     private extract(shots: number): CoffeeCup {
-      console.log(`Pulling ${shots} shots ...`);
+      console.log(`커피 ${shots} 잔을 추출하는 중 입니다.`);
       return {
         shots,
         hasMilk: false,
       };
     }
+
     makeCoffee(shots: number): CoffeeCup {
       this.grindBeans(shots);
       this.preheat();
       return this.extract(shots);
     }
+    clean() {
+      console.log("커피머신을 청소하는 중 입니다.");
+    }
   }
-  //!! 추상화는 사용하는 사람이 고민 없이 고민 없이 함수를 이용할 수 있게 한다.
-  //!! Using Private
-  //!! interface 나랑 소통하려면 이런 규약이 있어. like 계약서
+  // !! 상황에 맞게 인터페이스를 바꿔서 사용할 수 있음
+  const coffeeMachine: CommercialCoffeeMaker = CoffeeMachine.makeMachine(32);
 
+  // !! 인터페이스 사용 예시
   class AmateurUser {
     constructor(private machine: CoffeeMaker) {}
+
     makeCoffee() {
-      const coffee = this.machine.makeCoffee(2);
-      //   const coffee2 = this.machine.clean();
-      console.log(coffee);
+      const coffee = this.machine.makeCoffee(1);
+      console.log("저는 아마추어 입니다");
     }
   }
-
   class ProBarista {
     constructor(private machine: CommercialCoffeeMaker) {}
-    makeCoffee() {
-      const coffee = this.machine.makeCoffee(2);
-      this.machine.fillCoffeeBeans(45);
+
+    makeCoffee(shots: number, bean: number) {
+      const coffee = this.machine.makeCoffee(shots);
+
+      this.machine.fillCoffeeBeans(bean);
       this.machine.clean();
-      console.log(coffee);
+      console.log("이게바로 프로다");
     }
   }
 
-  const maker : CoffeeMachine = CoffeeMachine.makeMachine(32);
-
-  // 같은 객체를 사용했지만, interface로 인해 각기 다른 메소드들만 사용할 수 있다.
-  const amateur : new AmateurUser(maker)
-  
-  const proBarista= new ProBarista(maker)
-  //   maker.clean();
+  const machine = CoffeeMachine.makeMachine(32);
+  const amateur = new AmateurUser(machine);
+  const proBarista = new ProBarista(machine);
+  console.log(amateur.makeCoffee());
+  console.log(proBarista.makeCoffee(3, 20));
 }

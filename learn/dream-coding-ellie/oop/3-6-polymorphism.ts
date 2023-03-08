@@ -6,103 +6,97 @@
   };
 
   interface CoffeeMaker {
-    makeCoffee(shots: number): CoffeeCup;
-  }
-
-  interface CommercialCoffeeMaker {
-    makeCoffee(shots: number): CoffeeCup;
     fillCoffeeBeans(beans: number): void;
-    clean(): void;
+    makeCoffee(shots: number): CoffeeCup;
   }
 
-  class CoffeeMachine implements CoffeeMaker, CommercialCoffeeMaker {
-    private static BEANS_GRAM_PER_SHOT: number = 7;
-    private coffeeBeans: number = 0;
+  class CoffeeMachine implements CoffeeMaker {
+    private static bean_per_one_shots: number = 7;
+    private bean: number = 0;
 
-    //!! protected 옵션은 상속 클래스에만 접근할 수 있게 하는 접근제어자 이다.
-    public constructor(coffeeBeans: number) {
-      this.coffeeBeans = coffeeBeans;
+    constructor(bean: number) {
+      this.bean = bean;
     }
-    static makeMachine(coffeeBeans: number): CoffeeMaker {
-      return new CoffeeMachine(coffeeBeans);
+
+    static makeMachine(bean: number): CoffeeMachine {
+      return new CoffeeMachine(bean);
     }
+
     fillCoffeeBeans(beans: number) {
       if (beans < 0) {
-        throw new Error("value for beans should be greater than 0");
+        throw new Error("커피 콩 개수는 0 보다 커야합니다.");
       }
-      this.coffeeBeans += beans;
-      console.log(this.coffeeBeans);
+      this.bean += beans;
+      console.log(
+        `커피콩이 ${beans}개 채워졌고 현재 총 ${this.bean}개 입니다.`
+      );
     }
-    clean() {
-      console.log(`Cleaning the machine...`);
-    }
-
     private grindBeans(shots: number) {
-      console.log(`grinding beans for ${shots}`);
-
-      if (this.coffeeBeans < CoffeeMachine.BEANS_GRAM_PER_SHOT) {
-        throw new Error("Not enough coffee beans!");
+      if (this.bean < shots * CoffeeMachine.bean_per_one_shots) {
+        throw new Error("커피 콩이 부족합니다.");
       }
+      this.bean -= shots * CoffeeMachine.bean_per_one_shots;
+      console.log("커피 콩을 가는 중입니다.");
+      console.log(`남아 있는 콩의 개수는 ${this.bean} 입니다.`);
+    }
 
-      this.coffeeBeans -= shots * CoffeeMachine.BEANS_GRAM_PER_SHOT;
-    }
     private preheat(): void {
-      console.log("heating up!");
+      console.log("커피를 따뜻하게 데우는 중 입니다.");
     }
+
     private extract(shots: number): CoffeeCup {
-      console.log(`Pulling ${shots} shots ...`);
+      console.log(`커피 ${shots} 잔을 추출하는 중 입니다.`);
       return {
         shots,
         hasMilk: false,
       };
     }
+
     makeCoffee(shots: number): CoffeeCup {
       this.grindBeans(shots);
       this.preheat();
       return this.extract(shots);
     }
+    clean() {
+      console.log("커피머신을 청소하는 중 입니다.");
+    }
   }
-
   class CaffeeLatteMachine extends CoffeeMachine {
-    constructor(beans: number, public readonly serialNumber: string) {
+    constructor(beans: number, private readonly serialNumber: string) {
+      // !! 부모클래스에서 꼭 필요로 하는 데이터는 받아와야 한다.
       super(beans);
     }
-    private steamMilk(): void {
-      console.log(`Steaming some milk...`);
+    private steamMilk() {
+      console.log("우유를 데우는 중 입니다.");
     }
     makeCoffee(shots: number): CoffeeCup {
-      //!! 상속한 부모 클래스에 있는 함수를 호출할 수 있다.
       const coffee = super.makeCoffee(shots);
       this.steamMilk();
-      return { ...coffee, hasMilk: true };
+      return {
+        ...coffee,
+        hasMilk: true,
+      };
     }
   }
+
   class SweetCoffeeMaker extends CoffeeMachine {
-    constructor(beans: number) {
-      super(beans);
-    }
-
-    private plusSuger(): void {
-      console.log(`Adding suger in Coffee...`);
-    }
-
     makeCoffee(shots: number): CoffeeCup {
       const coffee = super.makeCoffee(shots);
-      this.plusSuger();
-      return { ...coffee, hasSuger: true };
+      return {
+        ...coffee,
+        hasSuger: true,
+      };
     }
   }
-  const machines: CoffeeMachine[] = [
+
+  const machines: CoffeeMaker[] = [
     new CoffeeMachine(16),
     new CaffeeLatteMachine(16, "1"),
     new SweetCoffeeMaker(16),
-    new CoffeeMachine(20),
-    new CaffeeLatteMachine(20, "2"),
-    new SweetCoffeeMaker(20),
   ];
-  //!! 다형성
-  machines.forEach((machines) => {
-    console.log("-----------------------------");
-    machines.makeCoffee(1);
+
+  machines.forEach((machine) => {
+    console.log("---------------");
+    console.log(machine.makeCoffee(2));
   });
 }

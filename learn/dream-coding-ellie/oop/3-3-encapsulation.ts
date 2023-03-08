@@ -4,68 +4,43 @@
     shots: number;
     hasMilk: boolean;
   };
-  // public : 외부, 내부에서 접근 가능
-  // private : 외부에서 볼 수도 없고, 접근할 수도 없다.
-  // protected : 자식 클래스에서만 접근할 수 있음
-  class CoffeeMaker {
-    private static BEANS_GRAM_PER_SHOT: number = 7;
-    private coffeeBeans: number = 0;
 
-    constructor(coffeeBeans: number) {
-      this.coffeeBeans = coffeeBeans;
+  // !! 외부에서 유효하지 않은 변경을 차단하기 위해 캡슐화가 필요하다
+  class CoffeeMaker {
+    // !! private: 외부에 노출될 필요가 없을 때, static: 인스턴스 생성시 선언되지 않도록 함
+    private static bean_per_one_shots: number = 7;
+    private bean: number = 0;
+    // !! 생성자 함수로 인스턴스를 만드는 것이 아니라, 지정한 메소드로 생성할 수 있도록 하기 위해 private 설정
+    private constructor(bean: number) {
+      this.bean = bean;
     }
-    static makeMachine(coffeeBeans: number): CoffeeMaker {
-      return new CoffeeMaker(coffeeBeans);
+
+    static makeMachine(bean: number): CoffeeMaker {
+      return new CoffeeMaker(bean);
     }
+
     fillCoffeeBeans(beans: number) {
       if (beans < 0) {
-        throw new Error("value for beans should be greater than 0");
+        throw new Error("커피 콩 개수는 0 보다 커야합니다.");
       }
-      this.coffeeBeans += beans;
-      console.log(this.coffeeBeans);
+      this.bean += beans;
     }
     makeCoffee(shots: number): CoffeeCup {
-      if (this.coffeeBeans < CoffeeMaker.BEANS_GRAM_PER_SHOT) {
-        throw new Error("Not enough coffee beans!");
+      const bean_per_one_shots = 7;
+      if (this.bean < shots * CoffeeMaker.bean_per_one_shots) {
+        throw new Error("커피 콩이 부족합니다.");
       }
-      this.coffeeBeans -= shots * CoffeeMaker.BEANS_GRAM_PER_SHOT;
+
+      this.bean -= shots * bean_per_one_shots;
+
       return {
         shots,
         hasMilk: false,
       };
     }
   }
-  // 외부에 보여주고 싶지 않은 값들은 private 처리하면 감출 수 있다. -> 캡슐화
-  //   console.log(CoffeeMaker.BEANS_GRAM_PER_SHOT);
-  //   const coffee1 = new CoffeeMaker(22);
-  //   console.log(coffee1.fillCoffeeBeans(30));
-  //   const coffee2 = new CoffeeMaker(33);
-  //   console.log(coffee2);
 
-  class User {
-    get fullName(): string {
-      return `${this.firstName} ${this.lastName}`;
-    }
-    private internalAge = 4;
-
-    get age(): number {
-      return this.internalAge;
-    }
-    set age(num: number) {
-      if (num < 0) {
-        throw new Error("num should be greater than 0");
-      }
-      this.internalAge = num;
-    }
-    constructor(private firstName: string, private lastName: string) {
-      //   this.fullName = `${firstName} ${lastName}`;
-    }
-    handleName(firstName: string) {
-      this.firstName = firstName;
-    }
-  }
-
-  const user = new User("Steve", "Jobs");
-  user.age = 6;
-  console.log(user.age);
+  const maker = CoffeeMaker.makeMachine(32);
+  maker.fillCoffeeBeans(10);
+  console.log(maker);
 }

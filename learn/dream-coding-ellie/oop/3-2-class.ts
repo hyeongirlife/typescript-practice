@@ -1,53 +1,43 @@
 {
-  // !! 절차지향으로 커피머신 만들기
-  type CoffeeCup = {
+  type coffeeCup = {
     shots: number;
     hasMilk: boolean;
   };
-
-  class coffeeMaker {
-    //!! 클래스 내에서 정의 됐고 변하지 않음
-    static BEANS_GRAM_PER_SHOT: number = 7; //!! static 옵션을 주면 클래스와 연결되어있어 오브젝트를 만들 때 마다 생성 되지 않음
-    coffeeBeans: number = 0; //!! 인스턴스 레벨 이므로 오브젝트 마다 생성 된다.
-
-    // 새로운 인스턴스를 생성할 때 생성자 함수 안에 값을 할당할 수 있음
-    constructor(coffeeBeans: number) {
-      this.coffeeBeans = coffeeBeans;
+  // !! 클래스는 관련된 속성과 함수들을 묶어서 어떤 모양의 데이터가 될 거라는 것을 정의하는 것
+  // !! 실제 데이터를 넣어서 객체를 만들 수 있다.
+  // !! 데이터를 넣을 때마다 변경되는 값은 멤버변수로, 고정된 값을 이용한다면 static을 사용한다.
+  class CoffeeMaker {
+    // !! 클래스 -> 인스턴스 레벨로 하향됨으로써 인스턴스 생성 시 같이 생성되지 않음.
+    static bean_per_one_shots: number = 7;
+    // !! 인스턴스 레벨이므로 인스턴스 생성 시 같이 생성 됨.
+    bean: number = 0;
+    // !! 인스턴스 생성 시 변수를 할당할 수 있는 생성자 함수
+    constructor(bean: number) {
+      this.bean = bean;
     }
-    static makeMachine(coffeeBeans: number): coffeeMaker {
-      return new coffeeMaker(coffeeBeans);
+
+    static makeMachine(bean: number): CoffeeMaker {
+      return new CoffeeMaker(bean);
     }
-    makeCoffee(shots: number): CoffeeCup {
-      if (this.coffeeBeans < coffeeMaker.BEANS_GRAM_PER_SHOT) {
-        throw new Error("Not enough coffee beans!");
+    makeCoffee(shots: number): coffeeCup {
+      const bean_per_one_shots = 7;
+      if (this.bean < shots * CoffeeMaker.bean_per_one_shots) {
+        throw new Error("커피 콩이 부족합니다.");
       }
-      this.coffeeBeans -= shots * coffeeMaker.BEANS_GRAM_PER_SHOT;
+
+      this.bean -= shots * bean_per_one_shots;
+
       return {
         shots,
         hasMilk: false,
       };
     }
   }
+  const oneCoffee = new CoffeeMaker(32);
+  const twoCoffee = new CoffeeMaker(14);
+  const threeCoffee = CoffeeMaker.makeMachine(32);
 
-  const coffee1 = new coffeeMaker(22);
-  console.log(coffee1);
-  const coffee2 = new coffeeMaker(33);
-  console.log(coffee2);
-
-  //   //!! primitive type은 타입추론을 이용해도 무방!
-  //   const BEANS_GRAM_PER_SHOT = 7;
-  //   let coffeeBeans: number = 15;
-
-  //   function makeCoffee(shots: number, hasMilk: boolean): CoffeeCup {
-  //     if (coffeeBeans < BEANS_GRAM_PER_SHOT) {
-  //       throw new Error("Not enough coffee beans!");
-  //     }
-  //     coffeeBeans -= shots * BEANS_GRAM_PER_SHOT;
-  //     return {
-  //       shots,
-  //       hasMilk: false,
-  //     };
-  //   }
-  //   const coffee = makeCoffee(2, false);
-  //   console.log(coffee);
+  console.log(oneCoffee);
+  console.log(twoCoffee);
+  console.log(threeCoffee);
 }

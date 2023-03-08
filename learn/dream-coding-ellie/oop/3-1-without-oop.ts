@@ -1,23 +1,22 @@
 {
-  // !! 절차지향으로 커피머신 만들기
-  type CoffeeCup = {
+  type coffeeCup = {
     shots: number;
     hasMilk: boolean;
   };
-  //!! primitive type은 타입추론을 이용해도 무방!
-  const BEANS_GRAM_PER_SHOT = 7;
-  let coffeeBeans: number = 15;
 
-  function makeCoffee(shots: number, hasMilk: boolean): CoffeeCup {
-    if (coffeeBeans < BEANS_GRAM_PER_SHOT) {
-      throw new Error("Not enough coffee beans!");
+  let bean: number = 21;
+
+  function makeCoffee(shots: number): coffeeCup {
+    const bean_per_one_shots = 7;
+    if (bean < shots * bean_per_one_shots) {
+      throw new Error("커피 콩이 부족합니다.");
     }
-    coffeeBeans -= shots * BEANS_GRAM_PER_SHOT;
+    bean -= shots * bean_per_one_shots;
     return {
       shots,
       hasMilk: false,
     };
   }
-  const coffee = makeCoffee(2, false);
-  console.log(coffee);
+  const oneCoffee = makeCoffee(4);
+  console.log(oneCoffee);
 }
