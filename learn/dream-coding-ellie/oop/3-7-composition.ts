@@ -16,7 +16,7 @@
   interface sugerFrother {
     addSuger(cup: CoffeeCup): CoffeeCup;
   }
-  class CoffeeMachine implements CoffeeMaker {
+  abstract class CoffeeMachine implements CoffeeMaker {
     private static bean_per_one_shots: number = 7;
     private bean: number = 0;
 
@@ -50,13 +50,7 @@
       console.log("커피를 따뜻하게 데우는 중 입니다.");
     }
 
-    private extract(shots: number): CoffeeCup {
-      console.log(`커피 ${shots} 잔을 추출하는 중 입니다.`);
-      return {
-        shots,
-        hasMilk: false,
-      };
-    }
+    protected abstract extract(shots: number): CoffeeCup;
 
     makeCoffee(shots: number): CoffeeCup {
       this.grindBeans(shots);
